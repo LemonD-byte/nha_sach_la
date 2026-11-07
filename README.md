@@ -27,7 +27,6 @@ nha-sach-la/
         │   └── admin/            # trang quản trị / nhân viên
         └── styles/global.css     # toàn bộ màu sắc & kiểu chữ (biến CSS ở :root)
 ```
-Thêm tính năng mới (ví dụ coupons): thêm `models/Coupon.js` → `controllers/coupon.controller.js` → `routes/coupon.routes.js` → gắn vào `app.js`; phía giao diện thêm trang trong `pages/`.
 
 ## Chạy ứng dụng
 1. Mở **MongoDB Compass**, kết nối `mongodb://127.0.0.1:27017`, database `nhasach` (collections: books, carts, categories, counters, orders, reviews, users) — dùng đúng dữ liệu bạn đã import.
@@ -53,10 +52,8 @@ Tài khoản mẫu (sau khi chạy reset-passwords, mật khẩu `123456`):
 | Nhân viên | staff1@nhasach.vn, staff2@nhasach.vn |
 | Khách hàng | customer1@gmail.com, customer2@gmail.com, customer3@gmail.com, test@gmail.com |
 
-> Lý do cần reset: file users chỉ chứa mã băm bcrypt nên không thể biết mật khẩu gốc.
-
 ## Bộ lọc sản phẩm (trang `/books`)
-Nhóm sản phẩm › danh mục (có số lượng), khoảng giá, thương hiệu/tác giả (lấy từ trường `author`), đánh giá từ 3/4 sao, chỉ còn hàng, sắp xếp, số sản phẩm mỗi trang (12/24/48), phân trang. Bộ lọc nằm trên URL nên chia sẻ/quay lại trang được; các “chip” bộ lọc đang áp dụng bấm để bỏ từng cái.
+Nhóm sản phẩm › danh mục (có số lượng), khoảng giá, thương hiệu/tác giả (lấy từ trường `author`), đánh giá từ 3/4 sao, chỉ còn hàng, sắp xếp, phân trang. Bộ lọc nằm trên URL nên chia sẻ/quay lại trang được; các “chip” bộ lọc đang áp dụng bấm để bỏ từng cái.
 
 ## Phân quyền
 - **customer**: xem/mua hàng, giỏ hàng, đặt hàng, hủy đơn đang chờ, đánh giá sản phẩm của đơn đã giao.
