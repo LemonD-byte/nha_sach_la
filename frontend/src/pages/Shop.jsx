@@ -23,7 +23,7 @@ export default function Shop() {
   useEffect(() => {
     setLoading(true);
     const { page, limit, sort, ...filters } = params;
-    api.get('/books', { params: { limit: 12, ...params } }).then((r) => setData(r.data)).finally(() => setLoading(false));
+    api.get('/books', { params: { limit: 19, ...params } }).then((r) => setData(r.data)).finally(() => setLoading(false));
     api.get('/books/facets', { params: filters }).then((r) => setFacets(r.data));
   }, [key]); // eslint-disable-line
 
@@ -65,9 +65,6 @@ export default function Shop() {
           <div className="row gap wrap">
             <label className="inline">Sắp xếp theo
               <select value={params.sort || 'newest'} onChange={(e) => update({ sort: e.target.value })}>{SORTS.map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select>
-            </label>
-            <label className="inline">Hiển thị
-              <select value={params.limit || 12} onChange={(e) => update({ limit: e.target.value })}>{[12, 24, 48].map((n) => <option key={n} value={n}>{n} sản phẩm</option>)}</select>
             </label>
           </div>
         </div>
