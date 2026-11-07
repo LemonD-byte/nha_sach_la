@@ -1,7 +1,6 @@
 # 🍃 Nhà sách Lá — Ứng dụng thương mại điện tử
 
 Node.js + Express + MongoDB (Mongoose) · ReactJS (Vite) · RESTful API (test bằng Postman).
-Giao diện cổ điển, chủ đạo xanh lá. Chưa có chức năng coupons.
 
 ## Cấu trúc thư mục
 ```
