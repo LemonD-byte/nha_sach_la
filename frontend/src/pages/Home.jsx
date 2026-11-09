@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api/client';
 import BookCard from '../components/BookCard';
+import { getRecent, removeRecent } from '../api/recent';
 
 const GROUPS = [
   ['Sách', '📚', 'Văn học, kinh tế, thiếu nhi, công nghệ'],
@@ -17,6 +18,26 @@ function Shelf({ title, params, to }) {
     <section className="shelf">
       <div className="shelf-head"><h2>{title}</h2><Link to={to}>Xem tất cả</Link></div>
       {items ? <div className="grid grid-5">{items.map((b) => <BookCard key={b._id} book={b} />)}</div> : <p className="muted">Đang tải…</p>}
+    </section>
+  );
+}
+
+/** “Đã xem gần đây”: id lấy từ localStorage, thông tin lấy bằng GET /books/:id; id nào không còn thì bỏ qua */
+function RecentShelf() {
+  const [items, setItems] = useState([]);
+  useEffect(() => {
+    const ids = getRecent();
+    if (!ids.length) return;
+    Promise.allSettled(ids.map((id) => api.get(`/books/${id}`))).then((rs) => {
+      rs.forEach((r, i) => { if (r.status === 'rejected' && r.reason?.response?.status === 404) removeRecent(ids[i]); });
+      setItems(rs.filter((r) => r.status === 'fulfilled').map((r) => r.value.data));
+    });
+  }, []);
+  if (items.length === 0) return null;
+  return (
+    <section className="shelf">
+      <div className="shelf-head"><h2>Đã xem gần đây</h2></div>
+      <div className="grid grid-5">{items.map((b) => <BookCard key={b._id} book={b} />)}</div>
     </section>
   );
 }
@@ -41,6 +62,8 @@ export default function Home() {
           </Link>
         ))}
       </section>
+
+      <RecentShelf />
 
       <Shelf title="Sản phẩm mới" params={{ sort: 'newest' }} to="/books?sort=newest" />
       <Shelf title="Được đánh giá cao" params={{ sort: 'rating', minRating: 4 }} to="/books?sort=rating&minRating=4" />

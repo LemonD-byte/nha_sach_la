@@ -200,3 +200,12 @@ label.inline { display: flex; align-items: center; gap: 8px; margin: 0; color: v
   .group-tiles, .foot-grid { grid-template-columns: 1fr; } .grid-5 { grid-template-columns: repeat(2, 1fr); }
   .shop { grid-template-columns: 1fr; } .filter-toggle { display: block; } .sidebar-filter { display: none; position: static; max-height: none; } .sidebar-filter.open { display: block; }
 }
+
+/* Yêu thích (TV3) */
+.wish { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: rgba(253,254,251,.94); color: var(--muted); cursor: pointer; font: inherit; transition: color .15s, border-color .15s; }
+.wish:hover { color: var(--red); border-color: var(--red); }
+.wish.on { color: var(--red); }
+.wish:disabled { opacity: .6; cursor: wait; }
+.wish-card { position: absolute; top: 8px; right: 8px; width: 34px; height: 34px; border-radius: 50%; justify-content: center; padding: 0; }
+.wish-inline { padding: 7px 16px; border-radius: 3px; }
+.wish-row { margin-bottom: 12px; }

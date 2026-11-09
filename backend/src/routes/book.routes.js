@@ -5,6 +5,7 @@ const { auth, optionalAuth, requireRole } = require('../middleware/auth');
 
 r.get('/', optionalAuth, c.list);
 r.get('/facets', optionalAuth, c.facets); // phải đặt trước '/:id'
+r.get('/:id/related', optionalAuth, c.related); // sản phẩm liên quan
 r.get('/:id', optionalAuth, c.get);
 r.get('/:bookId/reviews', rv.byBook);
 r.post('/', auth, requireRole('admin', 'staff'), c.create);

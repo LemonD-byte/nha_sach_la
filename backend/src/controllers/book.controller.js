@@ -74,6 +74,23 @@ exports.get = asyncHandler(async (req, res) => {
   res.json(book);
 });
 
+// GET /api/books/:id/related — tối đa 5 cuốn đang bán: ưu tiên cùng danh mục, thiếu thì bổ sung cùng tác giả
+exports.related = asyncHandler(async (req, res) => {
+  const book = await Book.findById(req.params.id);
+  if (!book || (!book.isActive && !['admin', 'staff'].includes(req.user?.role))) throw httpError(404, 'Không tìm thấy sản phẩm');
+  const LIMIT = 5;
+  const base = { isActive: true, _id: { $ne: book._id } };
+  const sameCat = await Book.find({ ...base, categoryId: book.categoryId })
+    .sort({ ratingAvg: -1, ratingCount: -1, createdAt: -1 }).limit(LIMIT);
+  let items = sameCat;
+  if (items.length < LIMIT && book.author && book.author !== 'Đang cập nhật') {
+    const more = await Book.find({ ...base, author: book.author, _id: { $nin: [book._id, ...items.map((b) => b._id)] } })
+      .sort({ ratingAvg: -1, ratingCount: -1, createdAt: -1 }).limit(LIMIT - items.length);
+    items = items.concat(more);
+  }
+  res.json(items);
+});
+
 exports.create = asyncHandler(async (req, res) => {
   const data = pick(req.body);
   if (!data.title || data.price === undefined || !data.categoryId) throw httpError(400, 'Thiếu tên, giá hoặc danh mục');

@@ -5,6 +5,9 @@ import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
 import BookCover from '../components/BookCover';
 import Stars from '../components/Stars';
+import BookCard from '../components/BookCard';
+import WishButton from '../components/WishButton';
+import { pushRecent } from '../api/recent';
 import { money, dateTime } from '../api/format';
 
 export default function BookDetail() {
@@ -16,14 +19,18 @@ export default function BookDetail() {
   const [cat, setCat] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [qty, setQty] = useState(1);
+  const [related, setRelated] = useState([]);
 
   useEffect(() => {
     api.get(`/books/${id}`).then(async (r) => {
       setBook(r.data);
+      pushRecent(r.data._id); // ghi lại sách vừa mở cho khối “Đã xem gần đây”
       const cats = await api.get('/categories');
       setCat(cats.data.find((c) => c._id === r.data.categoryId));
     }).catch(() => setBook(false));
     api.get(`/books/${id}/reviews`).then((r) => setReviews(r.data));
+    setRelated([]);
+    api.get(`/books/${id}/related`).then((r) => setRelated(r.data)).catch(() => {});
   }, [id]);
 
   if (book === false) return <p className="center muted">Không tìm thấy sản phẩm.</p>;
@@ -52,6 +59,9 @@ export default function BookDetail() {
           <p className="big-price">{money(book.price)}</p>
           <p>{book.description}</p>
           <p className="muted">{book.stock > 0 ? `Còn ${book.stock} sản phẩm` : 'Tạm hết hàng'}</p>
+          <div className="row gap wish-row">
+            <WishButton bookId={book._id} variant="inline" />
+          </div>
           {book.stock > 0 && (
             <div className="row gap">
               <input type="number" min="1" max={book.stock} value={qty} onChange={(e) => setQty(Math.max(1, +e.target.value || 1))} className="qty" />
@@ -82,6 +92,13 @@ export default function BookDetail() {
           </article>
         ))}
       </section>
+
+      {related.length > 0 && (
+        <section className="shelf">
+          <div className="shelf-head"><h2>Sản phẩm liên quan</h2></div>
+          <div className="grid grid-5">{related.map((b) => <BookCard key={b._id} book={b} />)}</div>
+        </section>
+      )}
     </>
   );
 }

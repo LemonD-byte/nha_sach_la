@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "nodemon server.js",
-    "reset-passwords": "node src/scripts/resetPasswords.js"
+    "reset-passwords": "node src/scripts/resetPasswords.js",
+    "seed-sample": "node src/scripts/seedSample.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
