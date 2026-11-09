@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import BookCover from './BookCover';
 import Stars from './Stars';
+import WishButton from './WishButton';
 import { money } from '../api/format';
 
 export default function BookCard({ book }) {
@@ -9,6 +10,7 @@ export default function BookCard({ book }) {
     <Link to={`/books/${book._id}`} className={`book-card ${out ? 'is-out' : ''}`}>
       <div className="cover-wrap">
         <BookCover book={book} />
+        <WishButton bookId={book._id} />
         {out && <span className="ribbon ribbon-red">Hết hàng</span>}
         {!out && book.stock <= 10 && <span className="ribbon">Còn {book.stock}</span>}
       </div>

@@ -8,6 +8,7 @@ import BookDetail from './pages/BookDetail';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
 import Orders from './pages/Orders';
+import Wishlist from './pages/Wishlist';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
@@ -32,6 +33,7 @@ export default function App() {
         <Route path="cart" element={customer(<Cart />)} />
         <Route path="checkout" element={customer(<Checkout />)} />
         <Route path="orders" element={customer(<Orders />)} />
+        <Route path="wishlist" element={customer(<Wishlist />)} />
         <Route path="profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="*" element={<p className="center muted">Không tìm thấy trang.</p>} />
       </Route>
