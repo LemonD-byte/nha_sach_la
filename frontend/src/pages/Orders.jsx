@@ -29,6 +29,14 @@ export default function Orders() {
   const [reviewed, setReviewed] = useState(new Set());
   const [open, setOpen] = useState(null);
   const [writing, setWriting] = useState(null);
+  const [paying, setPaying] = useState(null);
+  const retry = async (code) => {
+    setPaying(code);
+    try {
+      const { data } = await api.post(`/orders/my/${code}/retry-payment`);
+      window.location.href = data.paymentUrl;
+    } catch (e) { toast(errMsg(e), 'err'); setPaying(null); }
+  };
 
   const load = () => Promise.all([api.get('/orders/my'), api.get('/reviews/my')]).then(([o, r]) => {
     setOrders(o.data);
@@ -69,7 +77,8 @@ export default function Orders() {
           </div>
           <div className="row gap">
             <button className="btn-link" onClick={() => setOpen(open === o._id ? null : o._id)}>{open === o._id ? 'Ẩn chi tiết' : 'Xem chi tiết'}</button>
-            {o.status === 'pending' && <button className="btn-link danger" onClick={() => cancel(o.orderCode)}>Hủy đơn</button>}
+            {o.status === 'pending' && o.paymentMethod === 'VNPAY' && o.paymentStatus === 'unpaid' && <button className="btn" disabled={paying !== null} onClick={() => retry(o.orderCode)}>{paying === o.orderCode ? 'Đang chuyển…' : 'Thanh toán lại'}</button>}
+            {o.status === 'pending' && !(o.paymentMethod === 'VNPAY' && o.paymentStatus === 'paid') && <button className="btn-link danger" onClick={() => cancel(o.orderCode)}>Hủy đơn</button>}
           </div>
           {open === o._id && (
             <div className="detail-box">

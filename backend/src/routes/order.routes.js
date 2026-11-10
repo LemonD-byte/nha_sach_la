@@ -2,7 +2,11 @@ const r = require('express').Router();
 const c = require('../controllers/order.controller');
 const { auth, requireRole } = require('../middleware/auth');
 
+r.get('/vnpay_return', c.vnpayReturn);
+r.get('/vnpay_ipn', c.vnpayIpn);
 r.use(auth);
+r.post('/create_payment_url', requireRole('customer'), c.createPaymentUrl);
+r.post('/my/:code/retry-payment', requireRole('customer'), c.retryPayment);
 // Khách hàng
 r.post('/', requireRole('customer'), c.create);
 r.get('/my', requireRole('customer'), c.mine);
