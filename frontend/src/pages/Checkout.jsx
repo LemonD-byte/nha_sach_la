@@ -42,10 +42,8 @@ export default function Checkout() {
           <label>Địa chỉ giao hàng<textarea rows="3" {...f('address')} /></label>
           <h2>Phương thức thanh toán</h2>
           <label className="radio"><input type="radio" checked={paymentMethod === 'COD'} onChange={() => setPay('COD')} /> Thanh toán khi nhận hàng (COD)</label>
-          <label className="radio"><input type="radio" checked={paymentMethod === 'BANK'} onChange={() => setPay('BANK')} /> Chuyển khoản ngân hàng</label>
           <label className="radio"><input type="radio" checked={paymentMethod === 'VNPAY'} onChange={() => setPay('VNPAY')} /> Thanh toán qua VNPAY (thẻ hoặc QR)</label>
           {paymentMethod === 'VNPAY' && <p className="note">Bạn sẽ được chuyển đến VNPAY để thanh toán. Giao dịch có hiệu lực 15 phút. Nếu bỏ dở, bạn có thể thanh toán lại trong Đơn hàng của tôi.</p>}
-          {paymentMethod === 'BANK' && <p className="note">Sau khi đặt hàng, nhân viên sẽ liên hệ để cung cấp thông tin chuyển khoản và xác nhận thanh toán.</p>}
         </div>
         <aside className="panel summary">
           <h2>Đơn hàng của bạn</h2>

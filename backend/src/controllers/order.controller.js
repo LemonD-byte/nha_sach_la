@@ -14,7 +14,7 @@ const FLOW = { pending: ['confirmed', 'cancelled'], confirmed: ['shipping', 'can
 /* ---------- KHÁCH HÀNG ---------- */
 async function createOrder(req, paymentMethod) {
   const { shippingInfo = {} } = req.body;
-  if (!['COD', 'BANK', 'VNPAY'].includes(paymentMethod)) throw httpError(400, 'Phương thức thanh toán không hợp lệ');
+  if (!['COD', 'VNPAY'].includes(paymentMethod)) throw httpError(400, 'Phương thức thanh toán không hợp lệ');
   const { receiverName, phone, address } = shippingInfo;
   if (!receiverName || !phone || !address) throw httpError(400, 'Vui lòng nhập đủ thông tin nhận hàng');
 
