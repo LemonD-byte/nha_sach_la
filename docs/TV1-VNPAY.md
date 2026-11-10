@@ -19,6 +19,10 @@ VNP_RETURN_URL=http://localhost:5000/api/orders/vnpay_return
 
 Không đưa khóa thật vào Git hoặc frontend. Không dùng giá trị merchant giả để thử giao dịch thật trên sandbox.
 
+Nếu chưa có merchant, đăng ký tại https://sandbox.vnpayment.vn/devreg/ bằng email của bạn, rồi điền TmnCode và HashSecret VNPAY gửi vào `backend/.env`. Kiểm tra cấu hình bằng `npm run vnpay:check` trong thư mục backend; lệnh không in giá trị khóa và không xác minh merchant với VNPAY.
+
+Trên máy Windows hiện tại, cổng 5000 bị dành riêng nên cấu hình local dùng `PORT=5001` và `VNP_RETURN_URL=http://localhost:5001/api/orders/vnpay_return` trong `backend/.env`. Frontend đọc `API_PROXY_TARGET=http://127.0.0.1:5001` từ `frontend/.env.local`. Hai file local được Git bỏ qua. Nếu đổi cổng, sửa đồng thời PORT, Return URL và API_PROXY_TARGET, rồi khởi động lại hai server.
+
 ```sh
 cd backend
 npm install
