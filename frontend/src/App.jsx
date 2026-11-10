@@ -7,6 +7,7 @@ import Shop from './pages/Shop';
 import BookDetail from './pages/BookDetail';
 import Cart from './pages/Cart';
 import Checkout from './pages/Checkout';
+import VnpayReturn from './pages/VnpayReturn';
 import Orders from './pages/Orders';
 import Wishlist from './pages/Wishlist';
 import Login from './pages/Login';
@@ -32,6 +33,7 @@ export default function App() {
         <Route path="register" element={<Register />} />
         <Route path="cart" element={customer(<Cart />)} />
         <Route path="checkout" element={customer(<Checkout />)} />
+        <Route path="payment/result" element={customer(<VnpayReturn />)} />
         <Route path="orders" element={customer(<Orders />)} />
         <Route path="wishlist" element={customer(<Wishlist />)} />
         <Route path="profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />

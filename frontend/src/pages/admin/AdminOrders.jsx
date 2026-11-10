@@ -57,10 +57,10 @@ export default function AdminOrders() {
           {sel.status === 'shipping' && <p className="small muted">Số lần giao: {sel.deliveryAttempts}</p>}
           <OrderTimeline history={sel.statusHistory} />
           <div className="row gap wrap">
-            {(NEXT[sel.status] || []).map(([s, label]) => <button key={s} className="btn" onClick={() => act(api.patch(`/orders/${code}/status`, { status: s }), label + ' thành công')}>{label}</button>)}
+            {(sel.paymentMethod === 'VNPAY' && sel.paymentStatus === 'unpaid' ? [] : NEXT[sel.status] || []).map(([s, label]) => <button key={s} className="btn" onClick={() => act(api.patch(`/orders/${code}/status`, { status: s }), label + ' thành công')}>{label}</button>)}
             {sel.status === 'shipping' && <button className="btn btn-ghost" onClick={() => act(api.patch(`/orders/${code}/delivery-failed`, {}), 'Đã ghi nhận giao thất bại')}>Giao thất bại</button>}
-            {sel.paymentStatus === 'unpaid' && sel.status !== 'cancelled' && <button className="btn btn-ghost" onClick={() => act(api.patch(`/orders/${code}/pay`), 'Đã xác nhận thanh toán')}>Xác nhận đã thanh toán</button>}
-            {['pending', 'confirmed', 'shipping'].includes(sel.status) && <button className="btn btn-danger" onClick={() => { const note = prompt('Lý do hủy đơn?'); if (note !== null) act(api.patch(`/orders/${code}/status`, { status: 'cancelled', note }), 'Đã hủy đơn'); }}>Hủy đơn</button>}
+            {sel.paymentMethod !== 'VNPAY' && sel.paymentStatus === 'unpaid' && sel.status !== 'cancelled' && <button className="btn btn-ghost" onClick={() => act(api.patch(`/orders/${code}/pay`), 'Đã xác nhận thanh toán')}>Xác nhận đã thanh toán</button>}
+            {['pending', 'confirmed', 'shipping'].includes(sel.status) && !(sel.paymentMethod === 'VNPAY' && sel.paymentStatus === 'paid') && <button className="btn btn-danger" onClick={() => { const note = prompt('Lý do hủy đơn?'); if (note !== null) act(api.patch(`/orders/${code}/status`, { status: 'cancelled', note }), 'Đã hủy đơn'); }}>Hủy đơn</button>}
           </div>
         </Modal>
       )}
