@@ -11,7 +11,7 @@ nha-sach-la/
 │   └── src/
 │       ├── app.js                # gắn middleware + routes
 │       ├── config/db.js          # kết nối MongoDB
-│       ├── models/               # User, Book, Category, Cart, Order, Review, Counter
+│       ├── models/               # User, Book, Category, Cart, Wishlist, Coupon, Order, Review, Counter
 │       ├── middleware/           # auth (JWT + phân quyền), error
 │       ├── controllers/          # xử lý nghiệp vụ theo từng module
 │       ├── routes/               # khai báo endpoint theo từng module
@@ -29,13 +29,14 @@ nha-sach-la/
 ```
 
 ## Chạy ứng dụng
-1. Mở **MongoDB Compass**, kết nối `mongodb://127.0.0.1:27017`, database `nhasach` (collections: books, carts, categories, counters, orders, reviews, users, wishlists) — dùng đúng dữ liệu bạn đã import.
+1. Mở **MongoDB Compass**, kết nối `mongodb://127.0.0.1:27017`, database `nhasach` (collections: books, carts, categories, counters, coupons, orders, reviews, users, wishlists) — dùng đúng dữ liệu bạn đã import.
 2. Backend:
    ```bash
    cd backend
    npm install
    cp .env.example .env        # sửa MONGO_URI / JWT_SECRET nếu cần
    npm run reset-passwords     # đặt mật khẩu mọi tài khoản mẫu về 123456 (chỉ cần chạy 1 lần)
+   npm run seed-coupons        # tạo bộ mã giảm giá mẫu (nếu cần)
    npm run dev                 # http://localhost:5000
    ```
    Nếu sử dụng VNPay, cấu hình thêm `VNP_TMN_CODE`, `VNP_HASH_SECRET`, `VNP_URL`, `VNP_RETURN_URL` và `CLIENT_URL` trong `backend/.env`.
@@ -57,9 +58,10 @@ Tài khoản mẫu (sau khi chạy reset-passwords, mật khẩu `123456`):
 - **Trang chủ và khám phá:** xem sản phẩm mới, sản phẩm được đánh giá cao, duyệt theo nhóm Sách / Dụng cụ học tập / Đồ chơi; xem các sản phẩm đã xem gần đây.
 - **Tìm kiếm và xem sản phẩm:** tìm theo từ khóa; lọc theo nhóm, danh mục, khoảng giá, tác giả/thương hiệu, đánh giá và tồn kho; sắp xếp, phân trang, xem chi tiết, đánh giá và sản phẩm liên quan.
 - **Tài khoản khách hàng:** đăng ký, đăng nhập, cập nhật hồ sơ và đổi mật khẩu.
-- **Mua sắm:** thêm sản phẩm yêu thích, quản lý giỏ hàng, đặt hàng và theo dõi lịch sử/trạng thái đơn; hủy đơn đang chờ; thanh toán COD hoặc VNPay (có thể thanh toán lại đơn VNPay chưa thanh toán).
+- **Mua sắm:** thêm sản phẩm yêu thích, quản lý giỏ hàng, áp dụng mã giảm giá, đặt hàng và theo dõi lịch sử/trạng thái đơn; hủy đơn đang chờ; thanh toán COD hoặc VNPay (có thể thanh toán lại đơn VNPay chưa thanh toán).
+- **Mã giảm giá:** khách hàng xem thông báo mã công khai, sao chép mã và áp dụng tại trang thanh toán; mã hỗ trợ giảm theo phần trăm hoặc số tiền cố định, mức giảm tối đa, đơn tối thiểu, giới hạn tổng lượt dùng và lượt dùng mỗi khách.
 - **Đánh giá:** khách hàng đánh giá sản phẩm trong đơn đã giao; nhân viên/admin phản hồi và ẩn/hiện đánh giá.
-- **Quản trị:** dashboard thống kê doanh thu, đơn hàng, sản phẩm bán chạy và tồn kho thấp; nhân viên/admin xử lý đơn, quản lý sản phẩm và đánh giá; admin quản lý danh mục và tài khoản.
+- **Quản trị:** dashboard thống kê doanh thu, đơn hàng, sản phẩm bán chạy và tồn kho thấp; nhân viên/admin xử lý đơn, quản lý sản phẩm và đánh giá; admin quản lý danh mục, tài khoản và mã giảm giá.
 
 ## Bộ lọc sản phẩm (trang `/books`)
 Nhóm sản phẩm › danh mục (có số lượng), khoảng giá, thương hiệu/tác giả (lấy từ trường `author`), đánh giá từ 3/4 sao, chỉ còn hàng, sắp xếp, phân trang. Bộ lọc nằm trên URL nên chia sẻ/quay lại trang được; các “chip” bộ lọc đang áp dụng bấm để bỏ từng cái.
@@ -67,7 +69,7 @@ Nhóm sản phẩm › danh mục (có số lượng), khoảng giá, thương h
 ## Phân quyền
 - **customer**: xem/mua hàng, giỏ hàng, yêu thích, đặt hàng, hủy đơn đang chờ, thanh toán lại đơn VNPay chưa thanh toán, đánh giá sản phẩm của đơn đã giao.
 - **staff**: xử lý đơn (xác nhận → giao → đã giao, ghi nhận giao thất bại, hủy; xác nhận thanh toán COD), thêm/sửa sản phẩm và tồn kho, phản hồi/ẩn đánh giá.
-- **admin**: toàn bộ quyền của staff + xóa sản phẩm, quản lý danh mục, quản lý tài khoản (tạo, khóa, đổi vai trò).
+- **admin**: toàn bộ quyền của staff + xóa sản phẩm, quản lý danh mục, mã giảm giá và tài khoản (tạo, khóa, đổi vai trò).
 
 ## Danh sách API (gửi header `Authorization: Bearer <token>` nếu cần đăng nhập)
 | Method | Endpoint | Quyền | Mô tả |
@@ -98,6 +100,8 @@ Nhóm sản phẩm › danh mục (có số lượng), khoảng giá, thương h
 | GET | /api/orders/vnpay_return, /api/orders/vnpay_ipn | VNPay | Nhận kết quả chuyển hướng và thông báo thanh toán |
 | GET | /api/orders/my, /api/orders/my/:code | customer | Đơn của tôi |
 | PATCH | /api/orders/my/:code/cancel | customer | Hủy đơn đang chờ (hoàn kho) |
+| GET | /api/coupons/available | customer | Danh sách mã giảm công khai phù hợp để thông báo và áp dụng |
+| POST | /api/coupons/validate `{code}` | customer | Kiểm tra mã và tính số tiền được giảm |
 | GET | /api/orders?status=&q= , /api/orders/:code | admin, staff | Danh sách / chi tiết đơn |
 | PATCH | /api/orders/:code/status `{status, note}` | admin, staff | pending→confirmed→shipping→delivered, hoặc cancelled |
 | PATCH | /api/orders/:code/delivery-failed | admin, staff | Ghi nhận giao thất bại (tăng deliveryAttempts) |
@@ -105,11 +109,13 @@ Nhóm sản phẩm › danh mục (có số lượng), khoảng giá, thương h
 | GET/POST | /api/reviews/my, /api/reviews `{bookId, orderCode, rating, comment}` | customer | Xem / gửi đánh giá |
 | GET | /api/reviews?status= | admin, staff | Tất cả đánh giá |
 | PATCH | /api/reviews/:id/reply `{reply}`, /api/reviews/:id/status `{status}` | admin, staff | Phản hồi / ẩn-hiện |
+| GET/POST/PUT/DELETE | /api/coupons[/:id] | admin | Quản lý mã giảm giá, bật/tắt và xóa |
 | GET/POST/PUT | /api/users[/:id] | admin | Xem, tạo và cập nhật tài khoản |
 | GET | /api/stats | admin, staff | Thống kê tổng quan |
 
 ## Quy ước dữ liệu (khớp với database hiện có)
-- `_id` là chuỗi: sách `SP####`, đơn `DH####`, đánh giá `RV####`, giỏ `GH####`, yêu thích `YT####`, danh mục `A/B/C####`, khách hàng số `1000###`, nhân viên `stf####`, admin `ad####`.
-- Mã tăng tự động lấy từ collection `counters` (`orderCode`, `reviewCode`; các counter `bookCode`, `cartCode`, `userCode`, `wishlistCode`... tự tạo khi cần).
+- `_id` là chuỗi: sách `SP####`, đơn `DH####`, đánh giá `RV####`, giỏ `GH####`, yêu thích `YT####`, mã giảm giá `CP####`, danh mục `A/B/C####`, khách hàng số `1000###`, nhân viên `stf####`, admin `ad####`.
+- Mã tăng tự động lấy từ collection `counters` (`orderCode`, `reviewCode`; các counter `bookCode`, `cartCode`, `userCode`, `wishlistCode`, `couponCode`... tự tạo khi cần).
 - Đặt hàng trừ `stock`; hủy đơn hoàn lại `stock`. COD: `codAmount = totalAmount`, tự đánh dấu đã thanh toán khi giao thành công. VNPay: đơn chưa thanh toán hết hạn giao dịch sau 15 phút; khách có thể tạo lại phiên thanh toán.
+- Mã giảm giá được tính lại ở backend theo `subtotal`, không tin số tiền giảm từ trình duyệt. Đơn lưu `subtotal`, `discountAmount`, `couponCode` và `totalAmount` sau giảm; hủy hoặc thanh toán thất bại có thể hoàn lượt sử dụng mã và hoàn tồn kho.
 - `ratingAvg / ratingCount / ratingBreakdown` của sách được tính lại mỗi khi có đánh giá mới hoặc ẩn/hiện đánh giá.
