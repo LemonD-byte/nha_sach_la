@@ -71,6 +71,9 @@ export default function Orders() {
                   : <button className="btn-link" onClick={() => setWriting(`${o._id}:${i.bookId}`)}>Viết đánh giá</button>)}
             </div>
           ))}
+          {o.discountAmount > 0 && (
+            <div className="row-between small"><span>Mã giảm giá <strong>{o.couponCode}</strong> (tạm tính {money(o.subtotal)})</span><span className="discount">− {money(o.discountAmount)}</span></div>
+          )}
           <div className="row-between">
             <span className="small muted">{PAYMENT[o.paymentMethod]} · {o.paymentStatus === 'paid' ? 'Đã thanh toán' : 'Chưa thanh toán'}</span>
             <strong>{money(o.totalAmount)}</strong>

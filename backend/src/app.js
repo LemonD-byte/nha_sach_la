@@ -15,6 +15,7 @@ app.use('/api/books', require('./routes/book.routes'));
 app.use('/api/cart', require('./routes/cart.routes'));
 app.use('/api/wishlist', require('./routes/wishlist.routes'));
 app.use('/api/orders', require('./routes/order.routes'));
+app.use('/api/coupons', require('./routes/coupon.routes'));
 app.use('/api/reviews', require('./routes/review.routes'));
 app.use('/api/users', require('./routes/user.routes'));
 app.use('/api/stats', require('./routes/stats.routes'));

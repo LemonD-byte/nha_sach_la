@@ -14,6 +14,7 @@ export default function AdminLayout() {
         <NavLink to="/admin/books">Sản phẩm</NavLink>
         <NavLink to="/admin/reviews">Đánh giá</NavLink>
         {admin && <NavLink to="/admin/categories">Danh mục</NavLink>}
+        {admin && <NavLink to="/admin/coupons">Mã giảm giá</NavLink>}
         {admin && <NavLink to="/admin/users">Tài khoản</NavLink>}
         <Link to="/" className="back">← Về cửa hàng</Link>
       </aside>

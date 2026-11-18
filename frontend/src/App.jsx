@@ -19,6 +19,7 @@ import AdminBooks from './pages/admin/AdminBooks';
 import AdminCategories from './pages/admin/AdminCategories';
 import AdminReviews from './pages/admin/AdminReviews';
 import AdminUsers from './pages/admin/AdminUsers';
+import AdminCoupons from './pages/admin/AdminCoupons';
 
 const customer = (el) => <ProtectedRoute roles={['customer']}>{el}</ProtectedRoute>;
 
@@ -46,6 +47,7 @@ export default function App() {
         <Route path="reviews" element={<AdminReviews />} />
         <Route path="categories" element={<ProtectedRoute roles={['admin']}><AdminCategories /></ProtectedRoute>} />
         <Route path="users" element={<ProtectedRoute roles={['admin']}><AdminUsers /></ProtectedRoute>} />
+        <Route path="coupons" element={<ProtectedRoute roles={['admin']}><AdminCoupons /></ProtectedRoute>} />
       </Route>
     </Routes>
   );

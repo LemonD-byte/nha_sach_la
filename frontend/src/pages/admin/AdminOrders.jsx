@@ -54,6 +54,7 @@ export default function AdminOrders() {
           <p className="small">Giao đến: {sel.shippingInfo.receiverName} · {sel.shippingInfo.phone} · {sel.shippingInfo.address}</p>
           {sel.items.map((i) => <div key={i.bookId} className="row-between small"><span>{i.title} × {i.quantity}</span><span>{money(i.price * i.quantity)}</span></div>)}
           <div className="row-between"><span>Thu hộ (COD): {money(sel.codAmount)}</span><strong>{money(sel.totalAmount)}</strong></div>
+          {sel.discountAmount > 0 && <div className="row-between small"><span>Mã giảm giá {sel.couponCode} (tạm tính {money(sel.subtotal)})</span><span className="discount">− {money(sel.discountAmount)}</span></div>}
           {sel.status === 'shipping' && <p className="small muted">Số lần giao: {sel.deliveryAttempts}</p>}
           <OrderTimeline history={sel.statusHistory} />
           <div className="row gap wrap">

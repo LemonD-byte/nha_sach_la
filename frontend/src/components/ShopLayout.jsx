@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import CouponBell from './CouponBell';
 
 const CartIcon = () => (
   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><circle cx="9" cy="20" r="1.5" /><circle cx="18" cy="20" r="1.5" /><path d="M2 3h3l2.6 12.2a1 1 0 0 0 1 .8h8.8a1 1 0 0 0 1-.8L20 8H6" /></svg>
@@ -30,6 +31,7 @@ export default function ShopLayout() {
             <button aria-label="Tìm">Tìm</button>
           </form>
           <div className="hdr-actions">
+            {user?.role === 'customer' && <CouponBell />}
             {user?.role === 'customer' && <Link to="/wishlist" className="hdr-icon" title="Yêu thích"><HeartIcon />{wishIds.length > 0 && <b className="count">{wishIds.length}</b>}<span>Yêu thích</span></Link>}
             {user?.role === 'customer' && <Link to="/cart" className="hdr-icon" title="Giỏ hàng"><CartIcon />{cartCount > 0 && <b className="count">{cartCount}</b>}<span>Giỏ hàng</span></Link>}
             {user ? (

@@ -3,9 +3,11 @@ const Book = require('../models/Book');
 const { ensureCart } = require('./auth.controller');
 const { httpError, asyncHandler, nextSeq, pad } = require('../utils/helpers');
 const vnpay = require('../utils/vnpay');
+const { normalizeCode, validateCoupon, reserveCoupon, releaseCoupon } = require('../utils/coupon');
 const { randomUUID } = require('node:crypto');
 
 const restock = (order) => Promise.all(order.items.map((i) => Book.updateOne({ _id: i.bookId }, { $inc: { stock: i.quantity } })));
+const release = async (order) => { await restock(order); await releaseCoupon(order); };
 const log = (order, status, by, note = '') => order.statusHistory.push({ status, at: new Date(), by, note });
 
 // Luồng trạng thái hợp lệ
@@ -27,8 +29,13 @@ async function createOrder(req, paymentMethod) {
     if (!b) throw httpError(409, 'Có sản phẩm trong giỏ không còn được bán, vui lòng xóa khỏi giỏ');
     return { bookId: b._id, title: b.title, price: b.price, quantity: i.quantity };
   });
-  const totalAmount = items.reduce((s, i) => s + i.price * i.quantity, 0);
-  if (paymentMethod === 'VNPAY' && (!Number.isSafeInteger(totalAmount * 100) || totalAmount <= 0)) throw httpError(400, 'Số tiền thanh toán không hợp lệ');
+    const subtotal = items.reduce((s, i) => s + i.price * i.quantity, 0);
+
+  // Coupon (tùy chọn): server tự tính lại, không tin số tiền từ client
+  let coupon = null, discountAmount = 0;
+  if (normalizeCode(req.body.couponCode)) ({ coupon, discountAmount } = await validateCoupon(req.body.couponCode, subtotal, req.user._id));
+  const totalAmount = subtotal - discountAmount;
+  if (paymentMethod === 'VNPAY' && (!Number.isSafeInteger(totalAmount * 100) || totalAmount <= 0)) throw httpError(400, 'Số tiền thanh toán không hợp lệ')
 
   // Trừ kho nguyên tử; nếu thiếu hàng thì hoàn lại những dòng đã trừ
   const reserved = [];
@@ -38,8 +45,9 @@ async function createOrder(req, paymentMethod) {
       if (!r.modifiedCount) throw httpError(409, `"${it.title}" không đủ hàng trong kho`);
       reserved.push(it);
     }
+    if (coupon) await reserveCoupon(coupon);   // <-- thêm dòng này
   } catch (e) {
-    await Promise.all(reserved.map((it) => Book.updateOne({ _id: it.bookId }, { $inc: { stock: it.quantity } })));
+    await release({ items: reserved });
     throw e;
   }
 
@@ -49,12 +57,13 @@ async function createOrder(req, paymentMethod) {
     order = await Order.create({
       _id: code, orderCode: code, userId: req.user._id, handledBy: null, items,
       shippingInfo: { receiverName, phone, address }, paymentMethod, paymentStatus: 'unpaid',
-      codAmount: paymentMethod === 'COD' ? totalAmount : 0, totalAmount, status: 'pending', deliveryAttempts: 0,
+      codAmount: paymentMethod === 'COD' ? totalAmount : 0, subtotal, discountAmount, couponCode: coupon ? coupon.code : null,
+      totalAmount, status: 'pending', deliveryAttempts: 0,
       ...(paymentMethod === 'VNPAY' ? { vnpTxnRef: code, vnpTxnRefs: [code], vnpExpiresAt: new Date(Date.now() + 15 * 60 * 1000) } : {}),
       statusHistory: [{ status: 'pending', at: new Date(), by: null, note: 'Khách đặt hàng' }],
     });
-  } catch (error) {
-    await restock({ items });
+   } catch (error) {
+    await release({ items, couponCode: coupon ? coupon.code : null });   // trước đây là restock({ items })
     throw error;
   }
   cart.items = [];
@@ -119,7 +128,7 @@ async function processPayment(query) {
       note: success ? 'Thanh toán VNPAY thành công' : `Thanh toán VNPAY thất bại hoặc bị hủy (${query.vnp_ResponseCode})` } },
   }, { new: true });
   if (!updated) return { ...result, RspCode: '02', Message: 'Order already confirmed' };
-  if (!success) await restock(updated);
+  if (!success) await release(updated);
   return { ...result, RspCode: '00', Message: 'Confirm Success' };
 }
 exports.processPayment = processPayment;
@@ -157,7 +166,7 @@ exports.cancelMine = asyncHandler(async (req, res) => {
     $set: { status: 'cancelled' }, $push: { statusHistory: { status: 'cancelled', at: new Date(), by: null, note: 'Khách hủy đơn' } },
   }, { new: true });
   if (!cancelled) throw httpError(409, 'Đơn hàng vừa thay đổi, vui lòng tải lại');
-  await restock(cancelled);
+  await release(cancelled);
   res.json(cancelled);
 });
 
@@ -190,7 +199,7 @@ exports.updateStatus = asyncHandler(async (req, res) => {
       $push: { statusHistory: { status, at: new Date(), by: req.user._id, note } },
     }, { new: true });
     if (!cancelled) throw httpError(409, 'Đơn hàng vừa thay đổi, vui lòng tải lại');
-    await restock(cancelled);
+    await release(cancelled);
     return res.json(cancelled);
   }
 

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import api, { errMsg } from '../api/client';
 import { useAuth } from '../context/AuthContext';
 import { useToast } from '../context/ToastContext';
-import { money } from '../api/format';
+import { money, couponLabel } from '../api/format';
 
 export default function Checkout() {
   const { user, refreshCart } = useAuth();
@@ -13,8 +13,24 @@ export default function Checkout() {
   const [form, setForm] = useState({ receiverName: user.fullName, phone: user.phone || '', address: user.address || '' });
   const [paymentMethod, setPay] = useState('COD');
   const [busy, setBusy] = useState(false);
+  const [couponInput, setCouponInput] = useState('');
+  const [applied, setApplied] = useState(null);   // kết quả /coupons/validate
+  const [available, setAvailable] = useState([]);
+  const [couponBusy, setCouponBusy] = useState(false);
 
-  useEffect(() => { api.get('/cart').then((r) => setCart(r.data)); }, []);
+  useEffect(() => {
+    api.get('/cart').then((r) => setCart(r.data));
+    api.get('/coupons/available').then((r) => setAvailable(r.data)).catch(() => {});
+  }, []);
+  const applyCoupon = async (code) => {
+    if (!code.trim()) return;
+    setCouponBusy(true);
+    try {
+      const { data } = await api.post('/coupons/validate', { code });
+      setApplied(data); setCouponInput('');
+      toast(`Đã áp dụng mã ${data.code}`);
+    } catch (err) { setApplied(null); toast(errMsg(err), 'err'); } finally { setCouponBusy(false); }
+  };
   if (!cart) return <p className="center muted">Đang tải…</p>;
   if (!cart.items.length) { nav('/cart'); return null; }
 
@@ -22,7 +38,7 @@ export default function Checkout() {
     e.preventDefault();
     setBusy(true);
     try {
-      const { data } = await api.post(paymentMethod === 'VNPAY' ? '/orders/create_payment_url' : '/orders', { shippingInfo: form, paymentMethod });
+      const { data } = await api.post(paymentMethod === 'VNPAY' ? '/orders/create_payment_url' : '/orders', { shippingInfo: form, paymentMethod, couponCode: applied?.code });
       if (paymentMethod === 'VNPAY') { window.location.href = data.paymentUrl; return; }
       await refreshCart();
       toast(`Đặt hàng thành công — mã đơn ${data.orderCode}`);
@@ -49,7 +65,34 @@ export default function Checkout() {
           <h2>Đơn hàng của bạn</h2>
           {cart.items.map((i) => <div key={i.bookId} className="row-between small"><span>{i.book.title} × {i.quantity}</span><span>{money(i.book.price * i.quantity)}</span></div>)}
           <hr />
-          <div className="row-between"><span>Tổng cộng</span><strong className="big-price">{money(cart.total)}</strong></div>
+          <h3>Mã giảm giá</h3>
+          {applied ? (
+            <div className="coupon-applied">
+              <span><strong>{applied.code}</strong> <span className="small muted">{applied.description}</span></span>
+              <button type="button" className="btn-link danger" onClick={() => setApplied(null)}>Bỏ mã</button>
+            </div>
+          ) : (
+            <div className="row gap">
+              <input className="grow" placeholder="Nhập mã giảm giá" value={couponInput} style={{ textTransform: 'uppercase' }}
+                onChange={(e) => setCouponInput(e.target.value)}
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); applyCoupon(couponInput); } }} />
+              <button type="button" className="btn btn-ghost" disabled={couponBusy || !couponInput.trim()} onClick={() => applyCoupon(couponInput)}>Áp dụng</button>
+            </div>
+          )}
+          {!applied && available.length > 0 && (
+            <div className="coupon-list">
+              {available.map((c) => (
+                <button type="button" key={c.code} className="coupon-card" disabled={!c.eligible || couponBusy} onClick={() => applyCoupon(c.code)}>
+                  <strong>{c.code}</strong> · {couponLabel(c)}
+                  <span className="small muted">{c.eligible ? c.description : c.reason}</span>
+                </button>
+              ))}
+            </div>
+          )}
+          <hr />
+          <div className="row-between"><span>Tạm tính</span><span>{money(cart.total)}</span></div>
+          {applied && <div className="row-between"><span>Giảm giá ({applied.code})</span><span className="discount">− {money(applied.discountAmount)}</span></div>}
+          <div className="row-between"><span>Tổng cộng</span><strong className="big-price">{money(cart.total - (applied?.discountAmount || 0))}</strong></div>
           <button className="btn block" disabled={busy}>{busy ? 'Đang xử lý…' : 'Xác nhận đặt hàng'}</button>
         </aside>
       </form>

@@ -24,7 +24,7 @@ export default function BookDetail() {
   useEffect(() => {
     api.get(`/books/${id}`).then(async (r) => {
       setBook(r.data);
-      pushRecent(r.data._id); // ghi lại sách vừa mở cho khối “Đã xem gần đây”
+      pushRecent(r.data._id); 
       const cats = await api.get('/categories');
       setCat(cats.data.find((c) => c._id === r.data.categoryId));
     }).catch(() => setBook(false));
