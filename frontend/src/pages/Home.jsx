@@ -30,7 +30,7 @@ function RecentShelf() {
     if (!ids.length) return;
     Promise.allSettled(ids.map((id) => api.get(`/books/${id}`))).then((rs) => {
       rs.forEach((r, i) => { if (r.status === 'rejected' && r.reason?.response?.status === 404) removeRecent(ids[i]); });
-      setItems(rs.filter((r) => r.status === 'fulfilled').map((r) => r.value.data));
+      setItems(rs.filter((r) => r.status === 'fulfilled').map((r) => r.value.data).slice(0, 5)); // chỉ hiện 5 sản phẩm (1 hàng)
     });
   }, []);
   if (items.length === 0) return null;

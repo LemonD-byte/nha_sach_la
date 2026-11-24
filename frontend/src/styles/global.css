@@ -132,7 +132,7 @@ blockquote { margin: 8px 0; padding: 6px 14px; border-left: 3px solid var(--bras
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 
-/* ===== Giao diện v2: bố cục gian hàng tham khảo Fahasa, giữ tông xanh lá cổ điển ===== */
+/*giao diện header, footer, thanh điều hướng*/
 .promo-bar { background: var(--forest); color: #dbe9d4; text-align: center; font-size: .82rem; padding: 5px 10px; }
 .hdr { background: var(--card); border-bottom: 1px solid var(--line); position: sticky; top: 0; z-index: 30; }
 .hdr-in { display: flex; align-items: center; gap: 28px; padding-top: 12px; padding-bottom: 12px; }
@@ -143,6 +143,7 @@ blockquote { margin: 8px 0; padding: 6px 14px; border-left: 3px solid var(--bras
 .hdr-actions { display: flex; gap: 18px; align-items: center; }
 .hdr-icon { position: relative; display: flex; flex-direction: column; align-items: center; color: var(--forest); font-size: .78rem; line-height: 1.2; gap: 2px; }
 .hdr-icon:hover { text-decoration: none; color: var(--leaf); }
+.hdr-name { max-width: 120px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hdr-icon .count { position: absolute; top: -6px; right: -2px; margin: 0; }
 .hdr-user { position: relative; padding-bottom: 6px; margin-bottom: -6px; }
 .hdr-user .menu { display: none; position: absolute; right: 0; top: 100%; min-width: 180px; background: var(--card); border: 1px solid var(--line); border-top: 3px solid var(--brass); box-shadow: 0 6px 18px rgba(0,0,0,.12); padding: 6px 0; }

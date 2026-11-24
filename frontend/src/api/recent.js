@@ -1,6 +1,6 @@
 // “Đã xem gần đây”: lưu id sách trong localStorage, tối đa 10, mới nhất ở đầu, không trùng
 const KEY = 'recentBooks';
-const MAX = 10;
+const MAX = 7;
 
 export function getRecent() {
   try {

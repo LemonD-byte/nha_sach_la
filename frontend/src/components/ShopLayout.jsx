@@ -36,8 +36,7 @@ export default function ShopLayout() {
             {user?.role === 'customer' && <Link to="/cart" className="hdr-icon" title="Giỏ hàng"><CartIcon />{cartCount > 0 && <b className="count">{cartCount}</b>}<span>Giỏ hàng</span></Link>}
             {user ? (
               <div className="hdr-user">
-                <Link to="/profile" className="hdr-icon"><UserIcon /><span>{user.fullName.split(' ').slice(-1)}</span></Link>
-                <div className="menu">
+              <Link to="/profile" className="hdr-icon" title={user.fullName}><UserIcon /><span className="hdr-name">{user.fullName}</span></Link>                <div className="menu">
                   {user.role === 'customer' && <Link to="/orders">Đơn hàng của tôi</Link>}
                   {user.role === 'customer' && <Link to="/wishlist">Sản phẩm yêu thích</Link>}
                   {isStaff && <Link to="/admin">Trang quản trị</Link>}
@@ -64,7 +63,6 @@ export default function ShopLayout() {
         <div className="container foot-grid">
           <div><strong className="brand">🍃 Nhà sách Lá</strong><p>Sách, dụng cụ học tập và đồ chơi cho mọi lứa tuổi.</p></div>
           <div><strong>Mua sắm</strong><p><Link to="/books?group=Sách">Sách</Link><br /><Link to="/books?group=Dụng cụ học tập">Dụng cụ học tập</Link><br /><Link to="/books?group=Đồ chơi">Đồ chơi</Link></p></div>
-          <div><strong>Liên hệ</strong><p>Đồng Nai, Việt Nam<br />admin@nhasach.vn</p></div>
         </div>
       </footer>
     </div>
